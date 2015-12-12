@@ -2,6 +2,8 @@ module Day2
     ( answers
     ) where
 
+import qualified Data.List as List
+
 data Dimension = Dimension { l :: Int, 
                              w  :: Int, 
                              h :: Int } deriving Show
@@ -15,6 +17,9 @@ getDimension xs = let (length', rest) = span (/= 'x') xs
                       (width', rest') = span (/= 'x') (tail rest)
                       height' = tail rest'
                    in Dimension { l = read length', w = read width', h = read height' }
+
+getDimensions :: String -> [Dimension]
+getDimensions boxes = map getDimension $ words boxes
 
 dimensionSides :: Dimension -> Sides
 dimensionSides dimension = Sides { s1 = l dimension * w dimension, 
@@ -32,8 +37,23 @@ squareFeet :: Sides -> Int
 squareFeet sides = (surfaceArea sides) + (smallestArea sides)
 
 totalSquareFeet :: String -> Int
-totalSquareFeet boxes = sum $ map (squareFeet . dimensionSides . getDimension) $ words boxes
+totalSquareFeet boxes = sum $ map (squareFeet . dimensionSides) $ getDimensions boxes
+
+ribbonToWrap :: Dimension -> Int
+ribbonToWrap dimension = let values = [l dimension, w dimension, h dimension]
+                             ordered = List.sort values
+                         in 2 * (sum $ take 2 ordered)
+
+ribbonForTheBow :: Dimension -> Int
+ribbonForTheBow dimension = l dimension * w dimension * h dimension
+
+feetOfRibbon :: Dimension -> Int
+feetOfRibbon dimension = ribbonForTheBow dimension + ribbonToWrap dimension
+
+totalFeetOfRibbon :: String -> Int
+totalFeetOfRibbon boxes = sum $ map feetOfRibbon $ getDimensions boxes
 
 answers :: String -> IO ()
 answers boxes = do
     putStrLn $ "day 2 part 1 = " ++ show (totalSquareFeet boxes)
+    putStrLn $ "day 2 part 2 = " ++ show (totalFeetOfRibbon boxes)
