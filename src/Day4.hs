@@ -5,30 +5,22 @@ module Day4
     ) where
 
 import Data.Digest.Pure.MD5
-import Data.ByteString.Lazy.Char8 hiding (putStrLn, foldl, take)
+import qualified Data.ByteString.Lazy.Char8 as B
 
 secretKey :: String
 secretKey = "bgvyzdsv"
 
-checkAll :: [Char] -> Char -> Bool
-checkAll [] _        = True
-checkAll (x:xs) char = if x == char
-                       then checkAll xs char
-                       else False
-
-startsWithZeros :: String -> Bool
-startsWithZeros hash = let initials = take 5 hash
-                       in checkAll initials '0'
-
-findInt :: [Int] -> String -> Int
-findInt (x:xs) key = let hashKey = secretKey ++ show x
-                         hash    = show $ md5 (pack hashKey)
-                     in if startsWithZeros hash
-                        then x
-                        else findInt xs key
-mine :: Int
+findInt :: [Int] -> String -> Int -> Int
+findInt (x:xs) key zeros = let hashKey = secretKey ++ show x
+                               hash    = B.pack . show $ md5 (B.pack hashKey)
+                               zs      = B.pack . take zeros $ repeat '0'
+                           in if B.isPrefixOf zs hash
+                              then x
+                              else findInt xs key zeros
+mine :: Int -> Int
 mine = findInt [100000..] secretKey
 
 answers :: IO ()
 answers = do
-    putStrLn $ "day 4 part 1 = " ++ show mine
+    putStrLn $ "day 4 part 1 = " ++ show (mine 5)
+    putStrLn $ "day 4 part 2 = " ++ show (mine 6)
