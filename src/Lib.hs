@@ -5,6 +5,7 @@ module Lib
 import qualified Day1 as Day1
 import qualified Day2 as Day2
 import qualified Day3 as Day3
+import qualified Day4 as Day4
 
 answers :: IO ()
 answers = do
@@ -14,3 +15,4 @@ answers = do
     Day2.answers content
     content <- readFile "day3.txt"
     Day3.answers content
+    Day4.answers
