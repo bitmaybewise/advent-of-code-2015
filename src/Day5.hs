@@ -37,7 +37,34 @@ isNice word = let withVowels   = containsThreeVowels word
 niceStrings :: String -> Int
 niceStrings content = length $ filter isNice (words content)
 
+twiceWithoutOverlapping :: String -> Bool
+twiceWithoutOverlapping word = if (length word) < 4
+                               then False
+                               else let (x:y:z:xs) = word
+                                        appearsTwice = [x, y] `isInfixOf` (z:xs)
+                                        dontOverlaps = not $ [x, x, x] `isInfixOf` word
+                                    in if appearsTwice && dontOverlaps
+                                       then True
+                                       else twiceWithoutOverlapping (y:z:xs)
+
+repeatsBetween :: String -> Bool
+repeatsBetween word = if (length word) < 3
+                      then False
+                      else let (x:y:z:xs) = word
+                           in if (x == z) && (x /= y)
+                              then True
+                              else repeatsBetween (y:z:xs)
+
+isNewNice :: String -> Bool
+isNewNice word = let twice   = twiceWithoutOverlapping word
+                     repeats = repeatsBetween word
+                 in twice && repeats
+
+
+newNiceStrings :: String -> Int
+newNiceStrings content = length $ filter isNewNice (words content)
+
 answers :: String -> IO ()
 answers content = do
     putStrLn $ "day 5 part 1 = " ++ show (niceStrings content)
-    putStrLn $ "day 5 part 2 = " ++ show (niceStrings content)
+    putStrLn $ "day 5 part 2 = " ++ show (newNiceStrings content)
