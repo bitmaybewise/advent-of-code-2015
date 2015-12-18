@@ -7,6 +7,7 @@ import qualified Day2 as Day2
 import qualified Day3 as Day3
 import qualified Day4 as Day4
 import qualified Day5 as Day5
+import qualified Day6 as Day6
 
 answers :: IO ()
 answers = do
@@ -19,3 +20,5 @@ answers = do
     Day4.answers
     content <- readFile "day5.txt"
     Day5.answers content
+    content <- readFile "day6.txt"
+    Day6.answers content
