@@ -56,6 +56,8 @@ type Coordinate = (Int, Int)
 
 type Lights = M.Map Coordinate Bool
 
+type Brightness = M.Map Coordinate Int
+
 data Instruction = Instruction Action Coordinate Coordinate deriving Show
 
 parseAction :: Parser Action
@@ -80,8 +82,6 @@ parseInstruction = do
     end <- parseCoordinate
     return $ Instruction action start end
 
-parseAllInstructions = parseOnly (many $ parseInstruction <* endOfLine)
-
 executeAction :: Action -> Lights -> Coordinate -> Lights
 executeAction TurnOff lights coord = M.insert coord False lights
 executeAction TurnOn  lights coord = M.insert coord True lights
@@ -94,13 +94,39 @@ changeLights lights instruction = let (Instruction action (x1, y1) (x2, y2)) = i
                                       coordinates = [(x, y) | x <- [x1..x2], y <- [y1..y2]]
                                   in L.foldl' (executeAction action) lights coordinates
 
+parseAllInstructions = parseOnly (many $ parseInstruction <* endOfLine)
+
 howManyLightsAreLit :: String -> Int
 howManyLightsAreLit lines = let instructions = parseAllInstructions $ T.pack lines
                             in case instructions of
                                    Right xs -> length $ M.filter id $ L.foldl' changeLights M.empty xs
                                    Left _   -> 0
         
+updateBrightness :: Action -> Brightness -> Coordinate -> Brightness
+updateBrightness TurnOff lights coord = let maybeValue = M.lookup coord lights
+                                            value      = fromMaybe 0 maybeValue
+                                        in if value > 0
+                                           then M.insert coord (value - 1) lights
+                                           else M.insert coord 0 lights
+updateBrightness TurnOn  lights coord = let maybeValue = M.lookup coord lights
+                                            value      = fromMaybe 0 maybeValue
+                                        in M.insert coord (value + 1) lights
+updateBrightness Toggle  lights coord = let maybeValue = M.lookup coord lights
+                                            value      = fromMaybe 0 maybeValue
+                                        in M.insert coord (value + 2) lights
+
+changeBrightness :: Brightness -> Instruction -> Brightness
+changeBrightness lights instruction = let (Instruction action (x1, y1) (x2, y2)) = instruction
+                                          coordinates = [(x, y) | x <- [x1..x2], y <- [y1..y2]]
+                                      in L.foldl' (updateBrightness action) lights coordinates
+
+totalBrightness :: String -> Int
+totalBrightness lines = let instructions = parseAllInstructions $ T.pack lines
+                        in case instructions of
+                               Right xs -> M.foldl (+) 0 $ L.foldl' changeBrightness M.empty xs
+                               Left _   -> 0
 
 answers :: String -> IO ()
 answers content = do
     putStrLn $ "day 6 part 1 = " ++ show (howManyLightsAreLit content)
+    putStrLn $ "day 6 part 2 = " ++ show (totalBrightness content)
