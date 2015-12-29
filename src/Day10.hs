@@ -20,8 +20,13 @@ lookAndSay xs@(x:y:ys) = if x /= y
 lookAndSayAgain :: a -> String -> String
 lookAndSayAgain _ newInput = lookAndSay newInput
 
+lookAndSay40Times, lookAndSay50Times :: Int
+
 lookAndSay40Times = length $ foldr lookAndSayAgain input [1..40]
+
+lookAndSay50Times = length $ foldr lookAndSayAgain input [1..50]
 
 answers :: IO ()
 answers = do
     putStrLn $ "day 10 part 1 = " ++ (show lookAndSay40Times)
+    putStrLn $ "day 10 part 2 = " ++ (show lookAndSay50Times)

@@ -13,7 +13,6 @@ import qualified Day10 as Day10
 
 answers :: IO ()
 answers = do
-    {-
     content <- readFile "day1.txt"
     Day1.answers content
     content <- readFile "day2.txt"
@@ -27,5 +26,4 @@ answers = do
     Day6.answers content
     content <- readFile "day8.txt"
     Day8.answers content
-    -}
     Day10.answers
